@@ -1,0 +1,166 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{fullpage,setspace}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{mathabx}
+\usepackage{float}
+\usepackage{framed}
+\usepackage{fancyhdr}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{verbatim}
+\usepackage{algorithmicx}
+\usepackage{mathrsfs}
+\usepackage{attachfile}
+\usepackage{multicol}
+\usepackage{titling}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{indentfirst} % indent first paragraph
+\usepackage{hyperref}    % table of content links
+\hypersetup{
+    colorlinks=true,
+    allcolors=black
+}
+\usepackage[top=.5in, bottom=1in, left=.5in, right=.5in]{geometry}
+
+\title{Rocket Math Stuff}
+\pretitle{\begin{center}\fontsize{20bp}{18bp}\selectfont}
+\posttitle{\par\end{center}}
+\predate{}
+\date{}
+%\author{Eli Berkowitz}
+\postdate{}
+
+\begin{document}
+
+\maketitle
+
+%\tableofcontents
+
+\section{Variables}
+
+
+\begin{tabular}{l | l | l | l}
+    \textbf{Variable} & \textbf{Symbol} & \textbf{Units} & \textbf{Description} \\
+    \hline
+    Height             & $h(t)$      & $m$                   & Height off ground \\
+    Velocity           & $v(t)$      & $m/s$                 & Velocity of rocket \\
+    Acceleration       & $a(t)$      & $m/s^2$               & Acceleration of rocket \\
+    Thrust             & $T(t)$      & $kg\cdot m/s^2$       & Thrust of rocket \\
+    Exhaust rate       & $v_e(t)$    & $m/s$                 & Fuel exhaust speed ($\approx $ speed of sound) \\
+    Burn rate          & $B$         & $m/s$                 & Fuel burn rate (time, not energy) \\
+    Gravity            & $g$         & $m/s^2$               & Gravity ($\approx 9.807$) \\
+    Mass               & $m(t)$      & $kg$                  & Mass of rocket \\
+    Core Radius        & $R_c$       & $m$                   & Initial radius of inner core (function of angle if non-cylinder) \\
+    Inner radius       & $r(t)$      & $m$                   & Radius of core at given time \\
+    Rocket Length      & $L$         & $m$                   & Vertical length of rocket \\
+    Rocket Radius      & $R$         & $m$                   & Inner rocket radius (e.g. exclude PVC thickness) \\
+    Outer Radius       & $R_o$       & $m$                   & Outer rocket radius (measured from center to edge of PVC) \\
+    Fuel density       & $\rho_f$    & $kg/m^3$              & Fuel density \\
+    Air Density        & $\rho_a(h)$ & $kg/m^3$              & Air density (decreases with height) \\
+    Drag               & $C_d$       & None                  & Drag coefficient (related to Reynold‘s number) \\
+    Rocket Area        & $A$         & $m^2$                 & Cross sectional area of rocket (for drag computation) \\
+    Burn End Time      & $t_e$       & $s$                   & The time at which the burn ends \\
+    Air Temperature    & $T_a(h)$    & $K$                   & Temperature of air at height $h$ \\
+    Air Pressure       & $p_a(h)$    & $kPa$                 & Pressure of atmosphere at height $h$ \\
+    Lapse rate         & $L$         & $K/m$                 & Temperature lapse rate ($\approx 0.0065$) \\
+    Ideal Gas Constant & $R$         & $J/\text{mol}\cdot K$ & Ideal Gas Constant \\
+    Air Molar Mass     & $M_m$       & $kg/\text{mol}$       & Dry air molar mass
+\end{tabular}
+
+\section{Equation Derivations}
+\subsection{Velocity/Height}
+\subsubsection{Governing equation}
+Note: Currently just used $F=ma$, but since it‘s a mass varying system, need to integrate this equation: \hyperlink{’https://en.wikipedia.org/wiki/Variable-mass_system}{Mass Varying System}. Shouldn’t be too much of an issue since we find $m(t)$ explicity below and the derivative is simple. It just adds another constant, exhaust rate, that we’ll need to figure out or approximate as the speed of sound.
+$$\sum F = T(t) - gm(t) - \gamma v^2 = m(t)a(t) = m(t)\dot{v}$$
+\begin{equation}
+\dot{v} = \frac{T(t)}{m(t)} - g - \frac{\gamma v^2}{m(t)}
+\label{eq:main}
+\end{equation}
+
+\subsubsection{Drag}
+Drag is proportional to $v^2$ for turbulent flows (is this turbulent or laminar..? not sure since high speed but moderately aerodynamic object). If it’s laminar, proportional to $v$.
+Drag coefficient equation (source: \href{https://en.wikipedia.org/wiki/Drag_(physics)#Types_of_drag}{Wikipedia}):
+\begin{equation}
+\gamma = \frac{1}{2}\rho_a C_d A = \frac{\pi}{2} C_d R_o^2\rho_a(h)
+\label{eq:gamma}
+\end{equation}
+
+For air density, assumptions are: 1) Troposphere, 2) No humidity. From \href{https://en.wikipedia.org/wiki/Density_of_air#Altitude}{Wikipedia}, with $T_0 = 288.15$ and $p_0 = 101.325$:
+
+\begin{equation}
+T_a(h) = T_0 - Lh
+\label{eq:air-temp}
+\end{equation}
+
+\begin{equation}
+p(h) = \rho_0\left(1-\frac{Lh(t)}{T_0}\right)^\frac{gM_m}{RL}
+\label{eq:air-pressure}
+\end{equation}
+
+\begin{equation}
+\rho_a(h) = \frac{p(h)M_m}{RT_a(h)}
+\label{eq:air-density}
+\end{equation}
+
+% TODO : Improve C_d approximation
+For fun, let’s approximate $C_D \approx 0.4$ (relatively close I think).
+
+\subsubsection{Gravity}
+Gravity (approximated for now to get rid of nonlinearities):
+$$g=\frac{GM_{\Earth}}{R_{\Earth} + h(t)} \approx 9.807$$
+
+\subsubsection{Mass}
+In a given moment, $2\pi r(t) H \cdot \rho_f dr$ ($kg$) of fuel is being burned (assumptions: symmetric cylindrical burn). 
+
+Assuming the fuel burns outward at a constant rate (it doesn‘t, it’s dependent on chamber pressure. Need to integrate these equations: \hyperlink{https://www.nakka-rocketry.net/burnrate.html}{Pressure related burn rate}: $\frac{dr}{dt}=B\implies dr=Bdt$, so $2\pi H \rho_f r(t)dt$ ($kg$) of fuel is burned.
+\begin{equation}
+r(t) = \begin{cases}
+Bt + R_c & t \le \frac{R - R_c}{B} \\
+R      & t > \frac{R - R_c}{B}
+\end{cases}
+\label{eq:inner-radius}
+\end{equation}
+
+Let $t_e = \frac{R-R_c}{B}$, when all the fuel has burned. With this, the mass of the rocket is:
+
+\begin{equation}
+m(t) = \begin{cases}
+M_0 - \int_0^t 2\pi H \rho_f B (Bt+R_c)\,dt = M_0 - \pi H \rho_f B (Bt^2+2R_c t) & t \le t_e \\
+M_0 - \pi H \rho_f (R^2 - R_c^2)                                                 & t > t_e
+\end{cases}
+\label{eq:mass}
+\end{equation}
+\begin{equation}
+\dot{m} = \begin{cases}
+-2 \pi H \rho_f B (Bt + R_c) & t\le t_e \\
+0                            & t > t_e
+\end{cases}
+\label{eq:mdot}
+\end{equation}
+
+\subsection{Thrust}
+
+Need to figure this bit out.
+
+% \section{Summary}
+% \begin{tabular}{l l l}
+% \textbf{Variable}                & \textbf{Equation}                  & \textbf{Comments} \\
+% $t_e$                            & $\frac{R-R_c}{B}$                  & End time of symmetric cylindrical burn \\
+% $m$ for $t\le t_e$               & $M_0 - \pi H \rho [2R_c t + Bt^2]$ & Must use mass-variable system for this \\
+% $m$ for $t >  t_e$               & $M_0 - \pi H \rho \left(\frac{(R-R_c)^2}{B}+\frac{2 R_c (R-R_c)}{B}\right)$ & Final weight \\
+% $\dot{m}$ for $t \le t_e$        & $-2\pi H \rho [R_c + Bt]$          & Strictly negative \\
+% $\dot{m}$ for $t >   t_e$        & 0                                  & No mass change (burn has ended)
+% \end{tabular}
+
+\end{document}
+
+
