@@ -1,4 +1,4 @@
-# Experimental Rocket Motors
+# Smart Thrust Test Stand
 
 ## Recording thrust data
 
